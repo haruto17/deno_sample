@@ -30,8 +30,11 @@ serve(async (req) => {
 		}
 
 		//「ん」のチェック
-		if (nextWord.charAt(nextWord.length - 1) === "ん") {
-			return new Response("最後の文字が「ん」になっています!", { status: 400 });
+		if (
+			nextWord.charAt(nextWord.length - 1) === "ん" ||
+			nextWord.charAt(nextWord.length - 1) === "ン"
+		) {
+			return new Response("まけ", { status: 400 });
 		}
 
 		let ch_nextWord = Util.kataToHira(nextWord);
