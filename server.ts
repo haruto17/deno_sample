@@ -3,6 +3,7 @@ import { serveDir } from "https://deno.land/std@0.138.0/http/file_server.ts";
 import { Util } from "./util.ts";
 
 let previousWord = "しりとり";
+var array = ["しりとり"];
 
 console.log("Listening on http://localhost:8000");
 serve(async (req) => {
@@ -14,13 +15,16 @@ serve(async (req) => {
 	if (req.method === "POST" && pathname === "/shiritori") {
 		const requestJson = await req.json();
 		const nextWord = requestJson.nextWord;
+		//カタカナ→ひらがなに変換
+		let ch_nextWord = Util.kataToHira(nextWord);
+		let ch_previousWord = Util.kataToHira(previousWord);
 
 		//空文字チェック
 		if (!nextWord) {
 			return new Response("単語を入力してください!", { status: 400 });
 		}
 
-		//すべてひらがなorカタカナかチェック
+		//記号などが含まれていないかチェック
 		if (!nextWord.match(/^[ぁ-んー　]*$/)) {
 			if (!nextWord.match(/^[ア-ヶー　]*$/)) {
 				return new Response("不適切な文字が含まれています!", {
@@ -29,21 +33,15 @@ serve(async (req) => {
 			}
 		}
 
-		//「ん」のチェック
-		if (
-			nextWord.charAt(nextWord.length - 1) === "ん" ||
-			nextWord.charAt(nextWord.length - 1) === "ン"
-		) {
-			return new Response("まけ", { status: 400 });
+		//すでに使われているかチェック
+		if (array.includes(nextWord) || array.includes(ch_nextWord)) {
+			return new Response("その単語はすでに使われています!", { status: 400 });
 		}
 
-		let ch_nextWord = Util.kataToHira(nextWord);
-		let ch_previousWord = Util.kataToHira(previousWord);
-
-		console.log(ch_nextWord);
-		console.log(ch_nextWord.charAt(0));
-		console.log(ch_previousWord);
-		console.log(ch_previousWord.charAt(ch_previousWord.length - 1));
+		//「ん」のチェック
+		if (ch_nextWord.charAt(nextWord.length - 1) === "ん") {
+			return new Response("まけ", { status: 400 });
+		}
 
 		//最後の文字が伸ばし棒の場合削除する
 		if (ch_previousWord.charAt(ch_previousWord.length - 1) === "ー") {
@@ -56,6 +54,9 @@ serve(async (req) => {
 			ch_nextWord.charAt(0)
 		) {
 			return new Response("前の単語に続いていません!", { status: 400 });
+		} else {
+			array.push(ch_nextWord);
+			array.push(nextWord);
 		}
 
 		previousWord = nextWord;
