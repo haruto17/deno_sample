@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.138.0/http/server.ts";
 import { serveDir } from "https://deno.land/std@0.138.0/http/file_server.ts";
+import { Util } from "./util.ts";
 
 let previousWord = "しりとり";
 
@@ -34,9 +35,25 @@ serve(async (req) => {
 		}
 
 		//続いているかチェック
+		// if (
+		// 	nextWord.length > 0 &&
+		// 	previousWord.charAt(previousWord.length - 1) !== nextWord.charAt(0)
+		// ) {
+		// 	return new Response("前の単語に続いていません!", { status: 400 });
+		// }
+
+		//続いているかチェック;
+		let ch_nextWord = Util.kataToHira(nextWord);
+		let ch_previousWord = Util.kataToHira(previousWord);
+
+		console.log(ch_nextWord);
+		console.log(ch_nextWord.charAt(0));
+		console.log(ch_previousWord);
+		console.log(ch_previousWord.charAt(ch_previousWord.length - 1));
+
 		if (
-			nextWord.length > 0 &&
-			previousWord.charAt(previousWord.length - 1) !== nextWord.charAt(0)
+			ch_previousWord.charAt(ch_previousWord.length - 1) !==
+			ch_nextWord.charAt(0)
 		) {
 			return new Response("前の単語に続いていません!", { status: 400 });
 		}
