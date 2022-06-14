@@ -34,15 +34,6 @@ serve(async (req) => {
 			return new Response("最後の文字が「ん」になっています!", { status: 400 });
 		}
 
-		//続いているかチェック
-		// if (
-		// 	nextWord.length > 0 &&
-		// 	previousWord.charAt(previousWord.length - 1) !== nextWord.charAt(0)
-		// ) {
-		// 	return new Response("前の単語に続いていません!", { status: 400 });
-		// }
-
-		//続いているかチェック;
 		let ch_nextWord = Util.kataToHira(nextWord);
 		let ch_previousWord = Util.kataToHira(previousWord);
 
@@ -51,6 +42,12 @@ serve(async (req) => {
 		console.log(ch_previousWord);
 		console.log(ch_previousWord.charAt(ch_previousWord.length - 1));
 
+		//最後の文字が伸ばし棒の場合削除する
+		if (ch_previousWord.charAt(ch_previousWord.length - 1) === "ー") {
+			ch_previousWord = ch_previousWord.slice(0, -1);
+		}
+
+		//続いているかチェック
 		if (
 			ch_previousWord.charAt(ch_previousWord.length - 1) !==
 			ch_nextWord.charAt(0)
