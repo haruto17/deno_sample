@@ -2,8 +2,9 @@ import { serve } from "https://deno.land/std@0.138.0/http/server.ts";
 import { serveDir } from "https://deno.land/std@0.138.0/http/file_server.ts";
 import { Util } from "./util.ts";
 
-let previousWord = "しりとり";
-var array = ["しりとり"];
+const defaultWord = "しりとり";
+let previousWord = defaultWord;
+let stockWord = ["しりとり"];
 
 console.log("Listening on http://localhost:8000");
 serve(async (req) => {
@@ -15,27 +16,28 @@ serve(async (req) => {
 	if (req.method === "POST" && pathname === "/shiritori") {
 		const requestJson = await req.json();
 		const nextWord = requestJson.nextWord;
+
 		//カタカナ→ひらがなに変換
 		let ch_nextWord = Util.kataToHira(nextWord);
 		let ch_previousWord = Util.kataToHira(previousWord);
 
 		//空文字チェック
 		if (!nextWord) {
-			return new Response("単語を入力してください!", { status: 400 });
+			return new Response("単語を入力してください", { status: 400 });
 		}
 
 		//記号などが含まれていないかチェック
 		if (!nextWord.match(/^[ぁ-んー　]*$/)) {
 			if (!nextWord.match(/^[ア-ヶー　]*$/)) {
-				return new Response("不適切な文字が含まれています!", {
+				return new Response("記号などがふくまれています", {
 					status: 400,
 				});
 			}
 		}
 
 		//すでに使われているかチェック
-		if (array.includes(nextWord) || array.includes(ch_nextWord)) {
-			return new Response("その単語はすでに使われています!", { status: 400 });
+		if (stockWord.includes(nextWord) || stockWord.includes(ch_nextWord)) {
+			return new Response("その単語はすでに使われています", { status: 400 });
 		}
 
 		//「ん」のチェック
@@ -53,10 +55,10 @@ serve(async (req) => {
 			ch_previousWord.charAt(ch_previousWord.length - 1) !==
 			ch_nextWord.charAt(0)
 		) {
-			return new Response("前の単語に続いていません!", { status: 400 });
+			return new Response("前の単語に続いていません", { status: 400 });
 		} else {
-			array.push(ch_nextWord);
-			array.push(nextWord);
+			stockWord.push(ch_nextWord);
+			stockWord.push(nextWord);
 		}
 
 		previousWord = nextWord;
