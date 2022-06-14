@@ -16,10 +16,6 @@ serve(async (req) => {
 		const requestJson = await req.json();
 		const nextWord = requestJson.nextWord;
 
-		//カタカナ→ひらがなに変換
-		let ch_nextWord = Util.kataToHira(nextWord);
-		let ch_previousWord = Util.kataToHira(previousWord);
-
 		//空文字チェック
 		if (!nextWord) {
 			return new Response("単語を入力してください", { status: 400 });
@@ -33,6 +29,10 @@ serve(async (req) => {
 				});
 			}
 		}
+
+		//カタカナ→ひらがなに変換
+		let ch_nextWord = Util.kataToHira(nextWord);
+		let ch_previousWord = Util.kataToHira(previousWord);
 
 		//すでに使われているかチェック
 		if (stockWord.includes(nextWord) || stockWord.includes(ch_nextWord)) {
